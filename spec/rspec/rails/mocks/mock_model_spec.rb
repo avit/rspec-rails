@@ -1,12 +1,17 @@
 require 'spec_helper'
 
 describe "mock_model(RealModel)" do
-  
+
   context "given a String" do
     context "that does not represent an existing constant" do
       it "class says it's name" do
         model = mock_model("Foo")
         model.class.name.should eq("Foo")
+      end
+
+      it "class responds to base_class" do
+        model = mock_model("Foo")
+        model.class.base_class.should == Foo
       end
     end
 
@@ -121,15 +126,15 @@ describe "mock_model(RealModel)" do
     before(:each) do
       @model = mock_model(SubMockableModel)
     end
-    
+
     it "says it is_a?(RealModel)" do
       @model.is_a?(SubMockableModel).should be(true)
     end
-    
+
     it "says it is_a?(OtherModel) if RealModel is an ancestors" do
       @model.is_a?(MockableModel).should be(true)
     end
-    
+
     it "can be stubbed" do
       mock_model(MockableModel, :is_a? => true).is_a?(:Foo).should be_true
     end
@@ -139,15 +144,15 @@ describe "mock_model(RealModel)" do
     before(:each) do
       @model = mock_model(SubMockableModel)
     end
-    
+
     it "says it is kind_of? if RealModel is" do
       @model.kind_of?(SubMockableModel).should be(true)
     end
-    
+
     it "says it is kind_of? if RealModel's ancestor is" do
       @model.kind_of?(MockableModel).should be(true)
     end
-    
+
     it "can be stubbed" do
       mock_model(MockableModel, :kind_of? => true).kind_of?(:Foo).should be_true
     end
@@ -157,15 +162,15 @@ describe "mock_model(RealModel)" do
     before(:each) do
       @model = mock_model(SubMockableModel)
     end
-    
+
     it "says it is instance_of? if RealModel is" do
       @model.instance_of?(SubMockableModel).should be(true)
     end
-    
+
     it "does not say it instance_of? if RealModel isn't, even if it's ancestor is" do
       @model.instance_of?(MockableModel).should be(false)
     end
-    
+
     it "can be stubbed" do
       mock_model(MockableModel, :instance_of? => true).instance_of?(:Foo).should be_true
     end
@@ -223,7 +228,7 @@ describe "mock_model(RealModel)" do
           @model.respond_to?("title_before_type_cast").should be(false)
         end
       end
-      
+
       context "with as_null_object" do
         it "says it will respond_to?(key) if RealModel has the attribute 'key'" do
           @model.as_null_object.respond_to?("column_a").should be(true)
@@ -247,7 +252,7 @@ describe "mock_model(RealModel)" do
         model = NonActiveRecordModel.new
         model.should respond_to(:to_param)
       end
-      
+
       context "with as_null_object" do
         it "says it will not respond_to?(xxx_before_type_cast)" do
           model = NonActiveRecordModel.new.as_null_object
@@ -255,17 +260,17 @@ describe "mock_model(RealModel)" do
         end
       end
     end
-    
+
     it "can be stubbed" do
       mock_model(MockableModel, :respond_to? => true).respond_to?(:foo).should be_true
     end
   end
-  
+
   describe "#class" do
     it "returns the mocked model" do
       mock_model(MockableModel).class.should eq(MockableModel)
     end
-    
+
     it "can be stubbed" do
       mock_model(MockableModel, :class => String).class.should be(String)
     end
@@ -275,7 +280,7 @@ describe "mock_model(RealModel)" do
     it "returns (model.name)_(model#to_param)" do
       mock_model(MockableModel).to_s.should == "MockableModel_#{to_param}"
     end
-    
+
     it "can be stubbed" do
       mock_model(MockableModel, :to_s => "this string").to_s.should == "this string"
     end
@@ -325,7 +330,7 @@ describe "mock_model(RealModel)" do
         mock_model(MockableModel).should be_valid
       end
     end
-    
+
     context "stubbed with false" do
       it "returns false" do
         mock_model(MockableModel, :valid? => false).should_not be_valid
